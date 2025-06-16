@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Login from '../views/screens/login/Login';
 import Home from '../views/screens/home/Home';
+import NewAccount from '../views/screens/NewAccount/NewAccount';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -24,9 +25,12 @@ export default function Routes() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isLoggedIn ? (
-          <Stack.Screen name='Login'>
-            {() => <Login setIsLoggedIn={setIsLoggedIn} />}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name='Login'>
+              {() => <Login setIsLoggedIn={setIsLoggedIn} />}
+            </Stack.Screen>
+            <Stack.Screen name='NewAccount' component={NewAccount} />
+          </>
         ) : (
           <Stack.Screen name='Home' component={DrawerRoutes} />
         )}
