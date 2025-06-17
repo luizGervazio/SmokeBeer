@@ -29,7 +29,7 @@ export class OrderService {
   }
 
   findAll() {
-    return this.orderRepository.find({})
+    return this.orderRepository.find({});
   }
 
   findOne(id: number) {
@@ -40,5 +40,13 @@ export class OrderService {
 
   remove(id: number) {
     return this.orderRepository.delete(id);
+  }
+
+  async countAndSum() {
+    return await this.orderRepository
+      .createQueryBuilder('orders')
+      .select('COUNT(*)', 'count')
+      .addSelect('SUM(orders.totalPrice)', 'total')
+      .getRawOne(); // { count: '5', total: '1520.00' }
   }
 }

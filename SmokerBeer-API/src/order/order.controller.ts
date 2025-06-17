@@ -16,6 +16,12 @@ import { HasRoles } from 'src/config/constants/roles.constants';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @Get('sum')
+  @HasRoles('admin')
+  sum() {
+    return this.orderService.countAndSum();
+  }
+
   @Post()
   @HasRoles('user')
   create(@Body() createOrderDto: CreateOrderDto) {
