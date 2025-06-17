@@ -7,7 +7,7 @@ import { useAuth } from '../auth/AuthContext/AuthContext';
 
 import Login from '../views/screens/login/Login';
 import Home from '../views/screens/home/Home';
-import NewAccount from '../views/screens/NewAccount/NewAccount';
+import NewAccount from '../views/screens/NewAccount/index';
 import CartScreen from '../views/screens/Cart/CartScreen';
 import WineCRUD from '../views/screens/wine/Wine'; 
 import PurchaseAnalytics from '../views/screens/Purchase/PurchaseAnalytics';
