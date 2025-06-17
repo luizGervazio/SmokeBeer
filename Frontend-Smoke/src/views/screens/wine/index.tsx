@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -8,12 +8,44 @@ import {
   View,
   Modal,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Plus, Edit3, Trash2, Search, X, Save } from "lucide-react-native";
 import { styles } from "./styles";
 import { useWineController } from "./Wine.controller";
 
-const WineCRUD = () => {
+/* ---------- COMPONENTE MEMOIZADO PARA CAMPOS ---------- */
+const WineField = memo(
+  ({
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    keyboardType = "default",
+  }: {
+    label: string;
+    value: string;
+    onChangeText: (t: string) => void;
+    placeholder: string;
+    keyboardType?: any;
+  }) => (
+    <View style={styles.inputContainer}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <TextInput
+        style={styles.input}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        keyboardType={keyboardType}
+        placeholderTextColor="#9CA3AF"
+        blurOnSubmit={false}
+      />
+    </View>
+  )
+);
+
+export default function WineCRUD() {
   const {
     wines,
     loading,
@@ -30,32 +62,7 @@ const WineCRUD = () => {
     filteredWines,
   } = useWineController();
 
-  const FormInput = ({
-    label,
-    value,
-    onChangeText,
-    placeholder,
-    keyboardType = "default",
-  }: {
-    label: string;
-    value: string;
-    onChangeText: (text: string) => void;
-    placeholder: string;
-    keyboardType?: any;
-  }) => (
-    <View style={styles.inputContainer}>
-      <Text style={styles.inputLabel}>{label}</Text>
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        keyboardType={keyboardType}
-        placeholderTextColor="#9CA3AF"
-      />
-    </View>
-  );
-
+  /* ---------- ITEM DA LISTA ---------- */
   const WineItem = ({ wine }: { wine: any }) => (
     <View style={styles.wineItem}>
       <View style={styles.wineInfo}>
@@ -97,6 +104,7 @@ const WineCRUD = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* ---------- HEADER ---------- */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Gerenciar Vinhos</Text>
         <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
@@ -104,6 +112,7 @@ const WineCRUD = () => {
         </TouchableOpacity>
       </View>
 
+      {/* ---------- BARRA DE BUSCA ---------- */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
           <Search size={20} color="#9CA3AF" />
@@ -113,10 +122,12 @@ const WineCRUD = () => {
             value={searchTerm}
             onChangeText={setSearchTerm}
             placeholderTextColor="#9CA3AF"
+            blurOnSubmit={false}
           />
         </View>
       </View>
 
+      {/* ---------- LISTA ---------- */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {filteredWines.length > 0 ? (
           filteredWines.map((wine) => <WineItem key={wine.id} wine={wine} />)
@@ -127,10 +138,12 @@ const WineCRUD = () => {
         )}
       </ScrollView>
 
+      {/* ---------- MODAL ---------- */}
       <Modal
         visible={modalVisible}
         animationType="slide"
         presentationStyle="pageSheet"
+        onRequestClose={closeModal}
       >
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
@@ -140,95 +153,105 @@ const WineCRUD = () => {
             <Text style={styles.modalTitle}>
               {editingWine ? "Editar Vinho" : "Novo Vinho"}
             </Text>
-            <TouchableOpacity onPress={saveWine}>
+            <TouchableOpacity
+              onPress={async () => {
+                await saveWine();
+                closeModal();
+              }}
+            >
               <Save size={24} color="#2563EB" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView
-            style={styles.modalContent}
-            showsVerticalScrollIndicator={false}
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
           >
-            <FormInput
-              label="Nome"
-              value={formData.name}
-              onChangeText={(text) =>
-                setFormData((prev) => ({ ...prev, name: text }))
-              }
-              placeholder="Ex: Merlot"
-            />
-            <FormInput
-              label="Produtor"
-              value={formData.productor}
-              onChangeText={(text) =>
-                setFormData({ ...formData, productor: text })
-              }
-              placeholder="Ex: Aurora"
-            />
-            <FormInput
-              label="País"
-              value={formData.country}
-              onChangeText={(text) =>
-                setFormData({ ...formData, country: text })
-              }
-              placeholder="Ex: Brasil"
-            />
-            <FormInput
-              label="Região"
-              value={formData.region}
-              onChangeText={(text) =>
-                setFormData({ ...formData, region: text })
-              }
-              placeholder="Ex: Serra Gaúcha"
-            />
-            <FormInput
-              label="Ano"
-              value={formData.year}
-              onChangeText={(text) =>
-                setFormData({ ...formData, year: text })
-              }
-              placeholder="Ex: 2021"
-              keyboardType="numeric"
-            />
-            <FormInput
-              label="Álcool (%)"
-              value={formData.alcoholContent}
-              onChangeText={(text) =>
-                setFormData({ ...formData, alcoholContent: text })
-              }
-              placeholder="Ex: 13.5"
-              keyboardType="decimal-pad"
-            />
-            <FormInput
-              label="Tipo de Uva"
-              value={formData.typeGrape}
-              onChangeText={(text) =>
-                setFormData({ ...formData, typeGrape: text })
-              }
-              placeholder="Ex: Cabernet Sauvignon"
-            />
-            <FormInput
-              label="Descrição"
-              value={formData.description}
-              onChangeText={(text) =>
-                setFormData({ ...formData, description: text })
-              }
-              placeholder="Notas frutadas..."
-            />
-            <FormInput
-              label="Preço (R$)"
-              value={formData.price}
-              onChangeText={(text) =>
-                setFormData({ ...formData, price: text })
-              }
-              placeholder="Ex: 89.90"
-              keyboardType="decimal-pad"
-            />
-          </ScrollView>
+            <ScrollView
+              style={styles.modalContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="always"
+            >
+              <WineField
+                label="Nome"
+                value={formData.name}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, name: text }))
+                }
+                placeholder="Ex: Merlot"
+              />
+              <WineField
+                label="Produtor"
+                value={formData.productor}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, productor: text }))
+                }
+                placeholder="Ex: Aurora"
+              />
+              <WineField
+                label="País"
+                value={formData.country}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, country: text }))
+                }
+                placeholder="Ex: Brasil"
+              />
+              <WineField
+                label="Região"
+                value={formData.region}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, region: text }))
+                }
+                placeholder="Ex: Serra Gaúcha"
+              />
+              <WineField
+                label="Ano"
+                value={formData.year}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, year: text }))
+                }
+                placeholder="Ex: 2021"
+                keyboardType="numeric"
+              />
+              <WineField
+                label="Álcool (%)"
+                value={formData.alcoholContent}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, alcoholContent: text }))
+                }
+                placeholder="Ex: 13.5"
+                keyboardType="decimal-pad"
+              />
+              <WineField
+                label="Tipo de Uva"
+                value={formData.typeGrape}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, typeGrape: text }))
+                }
+                placeholder="Ex: Cabernet Sauvignon"
+              />
+              <WineField
+                label="Descrição"
+                value={formData.description}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, description: text }))
+                }
+                placeholder="Notas frutadas..."
+              />
+              <WineField
+                label="Preço (R$)"
+                value={formData.price}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, price: text }))
+                }
+                placeholder="Ex: 89.90"
+                keyboardType="decimal-pad"
+              />
+            </ScrollView>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
   );
-};
-
-export default WineCRUD;
+}

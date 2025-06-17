@@ -1,3 +1,4 @@
+// wine/Wine.controller.ts – revisado para evitar re‑renders que fecham o teclado
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import {
@@ -20,24 +21,27 @@ export type Wine = {
   price: number;
 };
 
+const EMPTY_FORM = {
+  name: "",
+  productor: "",
+  country: "",
+  region: "",
+  year: "",
+  alcoholContent: "",
+  typeGrape: "",
+  description: "",
+  price: "",
+};
+
 export function useWineController() {
   const [wines, setWines] = useState<Wine[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [editingWine, setEditingWine] = useState<Wine | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    productor: "",
-    country: "",
-    region: "",
-    year: "",
-    alcoholContent: "",
-    typeGrape: "",
-    description: "",
-    price: "",
-  });
+  const [formData, setFormData] = useState({ ...EMPTY_FORM });
 
+  /* ---------------- CARREGAR VINHOS ---------------- */
   const carregarVinhos = async () => {
     try {
       const dados = await getWines();
@@ -54,48 +58,50 @@ export function useWineController() {
     carregarVinhos();
   }, []);
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      productor: "",
-      country: "",
-      region: "",
-      year: "",
-      alcoholContent: "",
-      typeGrape: "",
-      description: "",
-      price: "",
-    });
-    setEditingWine(null);
-  };
-
-  const openModal = (wine: Wine | null = null) => {
-    if (wine) {
-      setEditingWine(wine);
-      setFormData({
-        name: wine.name,
-        productor: wine.productor,
-        country: wine.country,
-        region: wine.region,
-        year: wine.year.toString(),
-        alcoholContent: wine.alcoholContent.toString(),
-        typeGrape: wine.typeGrape,
-        description: wine.description,
-        price: wine.price.toString(),
-      });
-    } else {
-      resetForm();
+  /* ---------------- SINCRONIZAR FORMULÁRIO QUANDO O MODAL ABRE ---------------- */
+  useEffect(() => {
+    if (modalVisible) {
+      // Se estamos editando, carrega dados do vinho uma única vez
+      if (editingWine) {
+        setFormData((prev) =>
+          prev.id === editingWine.id
+            ? prev // já configurado – evita re‑render desnecessário
+            : {
+                name: editingWine.name,
+                productor: editingWine.productor,
+                country: editingWine.country,
+                region: editingWine.region,
+                year: editingWine.year.toString(),
+                alcoholContent: editingWine.alcoholContent.toString(),
+                typeGrape: editingWine.typeGrape,
+                description: editingWine.description,
+                price: editingWine.price.toString(),
+              }
+        );
+      } else {
+        // Novo vinho → limpa apenas se necessário
+        if (Object.values(formData).some((v) => v !== "")) {
+          setFormData({ ...EMPTY_FORM });
+        }
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalVisible]);
+
+  /* ---------------- FUNÇÕES DE ABRIR/FECHAR ---------------- */
+  const openModal = (wine: Wine | null = null) => {
+    setEditingWine(wine);
     setModalVisible(true);
   };
 
   const closeModal = () => {
     setModalVisible(false);
-    resetForm();
+    setEditingWine(null);
   };
 
+  /* ---------------- VALIDAÇÃO ---------------- */
   const validateForm = () => {
-    const requiredFields = [
+    const required = [
       "name",
       "productor",
       "country",
@@ -106,8 +112,7 @@ export function useWineController() {
       "description",
       "price",
     ];
-
-    for (const field of requiredFields) {
+    for (const field of required) {
       if (!formData[field as keyof typeof formData].trim()) {
         Alert.alert("Erro", `Campo "${field}" é obrigatório`);
         return false;
@@ -120,6 +125,7 @@ export function useWineController() {
     return true;
   };
 
+  /* ---------------- SALVAR ---------------- */
   const saveWine = async () => {
     if (!validateForm()) return;
 
@@ -136,20 +142,24 @@ export function useWineController() {
       price: parseFloat(formData.price),
     };
 
-    if (editingWine) {
-      await EditWine(editingWine.id!, wineData);
-      Alert.alert("Sucesso", "Vinho atualizado com sucesso!");
-    } else {
-      await CreateWine(wineData);
-      Alert.alert("Sucesso", "Vinho adicionado com sucesso!");
+    try {
+      if (editingWine) {
+        await EditWine(editingWine.id, wineData);
+        Alert.alert("Sucesso", "Vinho atualizado com sucesso!");
+      } else {
+        await CreateWine(wineData);
+        Alert.alert("Sucesso", "Vinho adicionado com sucesso!");
+      }
+      await carregarVinhos();
+      closeModal();
+    } catch (e) {
+      Alert.alert("Erro", "Não foi possível salvar o vinho.");
     }
-
-    await carregarVinhos();
-    closeModal();
   };
 
+  /* ---------------- EXCLUIR ---------------- */
   const deleteWine = (wine: Wine) => {
-    Alert.alert("Confirmar Exclusão", `Deseja excluir "${wine.name}"?`, [
+    Alert.alert("Confirmar Exclusão", `Deseja excluir \"${wine.name}\"?`, [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Excluir",
@@ -167,12 +177,15 @@ export function useWineController() {
     ]);
   };
 
-  const filteredWines = wines.filter(
-    (wine) =>
-      wine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      wine.typeGrape.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      wine.region.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  /* ---------------- FILTRO ---------------- */
+  const filteredWines = wines.filter((wine) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      wine.name.toLowerCase().includes(term) ||
+      wine.typeGrape.toLowerCase().includes(term) ||
+      wine.region.toLowerCase().includes(term)
+    );
+  });
 
   return {
     wines,

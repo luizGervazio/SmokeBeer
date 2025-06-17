@@ -6,7 +6,7 @@ export async function getWines() {
 }
 
 export function EditWine(id: number, wine: any) {
-  return api.put(`/wines/${id}`, wine);
+  return api.patch(`/wines/${id}`, wine);
 }
 
 export function CreateWine(wine: any) {
