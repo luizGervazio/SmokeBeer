@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { CustomDrawer } from './CustomDrawer';
 import { useAuth } from '../auth/AuthContext/AuthContext';
 
-import Login from '../views/screens/login/Login';
+import Login from '../views/screens/login/index';
 import Home from '../views/screens/home/Home';
 import NewAccount from '../views/screens/NewAccount/index';
 import CartScreen from '../views/screens/Cart/CartScreen';
@@ -42,9 +42,7 @@ export default function Routes() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isLoggedIn ? (
           <>
-            <Stack.Screen name='Login'>
-              {() => <Login setIsLoggedIn={login} />}
-            </Stack.Screen>
+            <Stack.Screen name='Login' component={Login} />
             <Stack.Screen name='NewAccount' component={NewAccount} />
           </>
         ) : (

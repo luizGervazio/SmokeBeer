@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { register } from "../../../api/services/auth/auth"; // ajuste o caminho se necessário
+import { register } from "../../../api/services/auth/auth"; 
 
 export function useNewAccountController() {
   const [name, setName] = useState("");
