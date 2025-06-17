@@ -7,6 +7,8 @@ export function useNewAccountController() {
   const [name, setName] = useState("");
   const [document, setDocument] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState(""); // Placeholder for phone, not used in this context
+  const [localization, setLocalization] = useState(""); // Placeholder for localization, not used in this context
   const navigation = useNavigation();
 
   const handleRegister = async () => {
@@ -16,7 +18,7 @@ export function useNewAccountController() {
     }
 
     try {
-      await register({ name, document, password });
+      await register({ name, document, password, phone, localization });
       Alert.alert("Sucesso", "Conta criada com sucesso!");
       navigation.goBack();
     } catch (error) {
@@ -31,6 +33,10 @@ export function useNewAccountController() {
     name,
     document,
     password,
+    phone, // Placeholder for phone, not used in this context
+    localization, // Placeholder for localization, not used in this context
+    setPhone, // Placeholder for phone, not used in this context
+    setLocalization,
     setName,
     setDocument,
     setPassword,

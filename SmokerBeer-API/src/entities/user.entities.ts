@@ -15,6 +15,12 @@ export class mUser {
   @Column()
   password: string;
 
+  @Column()
+  phone: string;
+
+  @Column()
+  localization: string;
+
   @Column({ type: 'enum', enum: eRoles, array: true, default: [eRoles.USER] })
   roles: eRoles[];
 

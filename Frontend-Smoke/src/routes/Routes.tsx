@@ -11,7 +11,7 @@ import NewAccount from '../views/screens/NewAccount/index';
 import CartScreen from '../views/screens/Cart/CartScreen';
 import WineCRUD from '../views/screens/wine/Wine'; 
 import PurchaseAnalytics from '../views/screens/Purchase/PurchaseAnalytics';
-import UserProfile from '../views/screens/user/user'; 
+import UserProfile from '../views/screens/user/index'; 
 import PurchaseHistory from '../views/screens/purchase-history/purchase-history'; // Import if needed
 
 const Drawer = createDrawerNavigator();

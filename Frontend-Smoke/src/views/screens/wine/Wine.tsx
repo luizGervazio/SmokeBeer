@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,187 +9,234 @@ import {
   TextInput,
   Alert,
   Modal,
-} from "react-native"
-import { Plus, Edit3, Trash2, Search, X, Save } from "lucide-react-native"
+  ActivityIndicator,
+} from "react-native";
+import { Plus, Edit3, Trash2, Search, X, Save } from "lucide-react-native";
+import {
+  CreateWine,
+  DeleteWineAPI,
+  EditWine,
+  getWines,
+} from "../../../api/services/wine/wine";
+
+type Wine = {
+  id: number;
+  name: string;
+  productor: string;
+  country: string;
+  region: string;
+  year: number;
+  alcoholContent: number;
+  typeGrape: string;
+  description: string;
+  price: number;
+};
 
 export default function WineCRUD() {
-  const [wines, setWines] = useState([
-    {
-      id: 1,
-      name: "Chanceler Reserva",
-      type: "Tinto Seco",
-      year: "2020",
-      region: "Serra Gaúcha",
-      price: 89.9,
-      rating: 4.5,
-      stock: 25,
-    },
-    {
-      id: 2,
-      name: "Miolo Lote 43",
-      type: "Tinto Suave",
-      year: "2019",
-      region: "Vale dos Vinhedos",
-      price: 125.0,
-      rating: 4.8,
-      stock: 15,
-    },
-    {
-      id: 3,
-      name: "Casa Valduga Branco",
-      type: "Branco Seco",
-      year: "2021",
-      region: "Bento Gonçalves",
-      price: 65.5,
-      rating: 4.2,
-      stock: 30,
-    },
-  ])
-
-  const [searchTerm, setSearchTerm] = useState("")
-  const [modalVisible, setModalVisible] = useState(false)
-  const [editingWine, setEditingWine] = useState(null)
+  const [wines, setWines] = useState<Wine[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingWine, setEditingWine] = useState<Wine | null>(null);
   const [formData, setFormData] = useState({
     name: "",
-    type: "",
-    year: "",
+    productor: "",
+    country: "",
     region: "",
+    year: "",
+    alcoholContent: "",
+    typeGrape: "",
+    description: "",
     price: "",
-    rating: "",
-    stock: "",
-  })
+  });
+
+  const carregarVinhos = async () => {
+    try {
+      const dados: Wine[] = await getWines();
+      setWines(dados);
+    } catch (error) {
+      console.error("Erro ao carregar vinhos:", error);
+      Alert.alert("Erro", "Não foi possível carregar os vinhos.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarVinhos();
+  }, []);
 
   const filteredWines = wines.filter(
     (wine) =>
       wine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      wine.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      wine.region.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      wine.typeGrape.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      wine.region.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const resetForm = () => {
     setFormData({
       name: "",
-      type: "",
-      year: "",
+      productor: "",
+      country: "",
       region: "",
+      year: "",
+      alcoholContent: "",
+      typeGrape: "",
+      description: "",
       price: "",
-      rating: "",
-      stock: "",
-    })
-    setEditingWine(null)
-  }
+    });
+    setEditingWine(null);
+  };
 
-  const openModal = (wine = null) => {
+  const openModal = (wine: Wine | null = null) => {
     if (wine) {
-      setEditingWine(wine)
+      setEditingWine(wine);
       setFormData({
         name: wine.name,
-        type: wine.type,
-        year: wine.year,
+        productor: wine.productor,
+        country: wine.country,
         region: wine.region,
+        year: wine.year.toString(),
+        alcoholContent: wine.alcoholContent.toString(),
+        typeGrape: wine.typeGrape,
+        description: wine.description,
         price: wine.price.toString(),
-        rating: wine.rating.toString(),
-        stock: wine.stock.toString(),
-      })
+      });
     } else {
-      resetForm()
+      resetForm();
     }
-    setModalVisible(true)
-  }
+    setModalVisible(true);
+  };
 
   const closeModal = () => {
-    setModalVisible(false)
-    resetForm()
-  }
+    setModalVisible(false);
+    resetForm();
+  };
 
   const validateForm = () => {
-    if (!formData.name.trim()) {
-      Alert.alert("Erro", "Nome é obrigatório")
-      return false
+    const requiredFields = [
+      "name",
+      "productor",
+      "country",
+      "region",
+      "year",
+      "alcoholContent",
+      "typeGrape",
+      "description",
+      "price",
+    ];
+    for (const field of requiredFields) {
+      if (!formData[field as keyof typeof formData].trim()) {
+        Alert.alert("Erro", `Campo "${field}" é obrigatório`);
+        return false;
+      }
     }
-    if (!formData.type.trim()) {
-      Alert.alert("Erro", "Tipo é obrigatório")
-      return false
+    if (isNaN(Number(formData.price))) {
+      Alert.alert("Erro", "Preço deve ser um número válido");
+      return false;
     }
-    if (!formData.price || isNaN(Number(formData.price))) {
-      Alert.alert("Erro", "Preço deve ser um número válido")
-      return false
-    }
-    return true
-  }
+    return true;
+  };
 
-  const saveWine = () => {
-    if (!validateForm()) return
+  const saveWine = async () => {
+    if (!validateForm()) return;
 
-    const wineData = {
+    const wineData: Wine = {
+      id: editingWine?.id || 0, // Se for um novo vinho, o ID será 0
       name: formData.name.trim(),
-      type: formData.type.trim(),
-      year: formData.year.trim(),
+      productor: formData.productor.trim(),
+      country: formData.country.trim(),
       region: formData.region.trim(),
-      price: Number.parseFloat(formData.price),
-      rating: Number.parseFloat(formData.rating) || 0,
-      stock: Number.parseInt(formData.stock) || 0,
-    }
+      year: Number(formData.year) || 0,
+      alcoholContent: parseFloat(formData.alcoholContent),
+      typeGrape: formData.typeGrape.trim(),
+      description: formData.description.trim(),
+      price: parseFloat(formData.price),
+    };
 
     if (editingWine) {
-      // Editar vinho existente
-      setWines((prevWines) => prevWines.map((wine) => (wine.id === editingWine.id ? { ...wine, ...wineData } : wine)))
-      Alert.alert("Sucesso", "Vinho atualizado com sucesso!")
+      console.log("Atualizando vinho:", editingWine);
+      EditWine(editingWine.id!, wineData);
+      await carregarVinhos();
+      Alert.alert("Sucesso", "Vinho atualizado com sucesso!");
     } else {
-      // Adicionar novo vinho
-      const newWine = {
-        id: Date.now(),
-        ...wineData,
-      }
-      setWines((prevWines) => [...prevWines, newWine])
-      Alert.alert("Sucesso", "Vinho adicionado com sucesso!")
+      await CreateWine(wineData);
+      console.log("Criando novo vinho:", wineData);
+      closeModal();
+      await carregarVinhos();
+      Alert.alert("Sucesso", "Vinho adicionado com sucesso!");
     }
 
-    closeModal()
-  }
+    closeModal();
+  };
 
-  const deleteWine = (wine) => {
-    Alert.alert("Confirmar Exclusão", `Tem certeza que deseja excluir "${wine.name}"?`, [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: () => {
-          setWines((prevWines) => prevWines.filter((w) => w.id !== wine.id))
-          Alert.alert("Sucesso", "Vinho excluído com sucesso!")
+  const deleteWine = (wine: Wine) => {
+    Alert.alert(
+      "Confirmar Exclusão",
+      `Tem certeza que deseja excluir "${wine.name}"?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await DeleteWineAPI(wine.id); // <- importante mudar o nome aqui para não colidir
+              await carregarVinhos();
+              Alert.alert("Sucesso", "Vinho excluído com sucesso!");
+            } catch (error) {
+              Alert.alert("Erro", "Erro ao excluir vinho.");
+            }
+          },
         },
-      },
-    ])
-  }
+      ]
+    );
+  };
 
-  const WineItem = ({ wine }) => (
+  const WineItem = ({ wine }: { wine: Wine }) => (
     <View style={styles.wineItem}>
       <View style={styles.wineInfo}>
         <Text style={styles.wineName}>{wine.name}</Text>
         <Text style={styles.wineDetails}>
-          {wine.type} • {wine.year}
+          {wine.typeGrape} • {wine.year}
         </Text>
         <Text style={styles.wineRegion}>{wine.region}</Text>
         <View style={styles.wineStats}>
-          <Text style={styles.winePrice}>R$ {wine.price.toFixed(2).replace(".", ",")}</Text>
-          <Text style={styles.wineStock}>Estoque: {wine.stock}</Text>
-          <Text style={styles.wineRating}>⭐ {wine.rating}</Text>
+          <Text style={styles.winePrice}>R$ {wine.price}</Text>
         </View>
       </View>
 
       <View style={styles.wineActions}>
-        <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={() => openModal(wine)}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.editButton]}
+          onPress={() => openModal(wine)}
+        >
           <Edit3 size={16} color="#2563EB" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={() => deleteWine(wine)}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.deleteButton]}
+          onPress={() => deleteWine(wine)}
+        >
           <Trash2 size={16} color="#EF4444" />
         </TouchableOpacity>
       </View>
     </View>
-  )
+  );
 
-  const FormInput = ({ label, value, onChangeText, placeholder, keyboardType = "default" }) => (
+  const FormInput = ({
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    keyboardType = "default",
+  }: {
+    label: string;
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder: string;
+    keyboardType?: any;
+  }) => (
     <View style={styles.inputContainer}>
       <Text style={styles.inputLabel}>{label}</Text>
       <TextInput
@@ -203,7 +248,15 @@ export default function WineCRUD() {
         placeholderTextColor="#9CA3AF"
       />
     </View>
-  )
+  );
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -237,49 +290,92 @@ export default function WineCRUD() {
         )}
       </ScrollView>
 
-      {/* Modal de Formulário */}
-      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={closeModal}>
               <X size={24} color="#111827" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>{editingWine ? "Editar Vinho" : "Novo Vinho"}</Text>
+            <Text style={styles.modalTitle}>
+              {editingWine ? "Editar Vinho" : "Novo Vinho"}
+            </Text>
             <TouchableOpacity onPress={saveWine}>
               <Save size={24} color="#2563EB" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.modalContent}
+            showsVerticalScrollIndicator={false}
+          >
             <FormInput
-              label="Nome do Vinho"
+              label="Nome"
               value={formData.name}
-              onChangeText={(text) => setFormData({ ...formData, name: text })}
-              placeholder="Ex: Chanceler Reserva"
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, name: text }))
+              }
+              placeholder="Ex: Merlot"
             />
-
             <FormInput
-              label="Tipo"
-              value={formData.type}
-              onChangeText={(text) => setFormData({ ...formData, type: text })}
-              placeholder="Ex: Tinto Seco"
+              label="Produtor"
+              value={formData.productor}
+              onChangeText={(text) =>
+                setFormData({ ...formData, productor: text })
+              }
+              placeholder="Ex: Aurora"
             />
-
+            <FormInput
+              label="País"
+              value={formData.country}
+              onChangeText={(text) =>
+                setFormData({ ...formData, country: text })
+              }
+              placeholder="Ex: Brasil"
+            />
+            <FormInput
+              label="Região"
+              value={formData.region}
+              onChangeText={(text) =>
+                setFormData({ ...formData, region: text })
+              }
+              placeholder="Ex: Serra Gaúcha"
+            />
             <FormInput
               label="Ano"
               value={formData.year}
               onChangeText={(text) => setFormData({ ...formData, year: text })}
-              placeholder="Ex: 2020"
+              placeholder="Ex: 2021"
               keyboardType="numeric"
             />
-
             <FormInput
-              label="Região"
-              value={formData.region}
-              onChangeText={(text) => setFormData({ ...formData, region: text })}
-              placeholder="Ex: Serra Gaúcha"
+              label="Álcool (%)"
+              value={formData.alcoholContent}
+              onChangeText={(text) =>
+                setFormData({ ...formData, alcoholContent: text })
+              }
+              placeholder="Ex: 13.5"
+              keyboardType="decimal-pad"
             />
-
+            <FormInput
+              label="Tipo de Uva"
+              value={formData.typeGrape}
+              onChangeText={(text) =>
+                setFormData({ ...formData, typeGrape: text })
+              }
+              placeholder="Ex: Cabernet Sauvignon"
+            />
+            <FormInput
+              label="Descrição"
+              value={formData.description}
+              onChangeText={(text) =>
+                setFormData({ ...formData, description: text })
+              }
+              placeholder="Notas frutadas..."
+            />
             <FormInput
               label="Preço (R$)"
               value={formData.price}
@@ -287,27 +383,11 @@ export default function WineCRUD() {
               placeholder="Ex: 89.90"
               keyboardType="decimal-pad"
             />
-
-            <FormInput
-              label="Avaliação (0-5)"
-              value={formData.rating}
-              onChangeText={(text) => setFormData({ ...formData, rating: text })}
-              placeholder="Ex: 4.5"
-              keyboardType="decimal-pad"
-            />
-
-            <FormInput
-              label="Estoque"
-              value={formData.stock}
-              onChangeText={(text) => setFormData({ ...formData, stock: text })}
-              placeholder="Ex: 25"
-              keyboardType="numeric"
-            />
           </ScrollView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -480,4 +560,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#111827",
   },
-})
+});

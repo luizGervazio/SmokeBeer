@@ -13,9 +13,13 @@ export default function NewAccount() {
     name,
     document,
     password,
+    phone,
+    localization,
     setName,
     setDocument,
     setPassword,
+    setPhone,
+    setLocalization,
     handleRegister,
     goBack,
   } = useNewAccountController();
@@ -45,6 +49,21 @@ export default function NewAccount() {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
+        />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Telefone"
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Localização"
+        value={localization}
+        onChangeText={setLocalization}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
