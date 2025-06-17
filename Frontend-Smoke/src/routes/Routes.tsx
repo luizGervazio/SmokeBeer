@@ -11,6 +11,8 @@ import NewAccount from '../views/screens/NewAccount/NewAccount';
 import CartScreen from '../views/screens/Cart/CartScreen';
 import WineCRUD from '../views/screens/wine/Wine'; 
 import PurchaseAnalytics from '../views/screens/Purchase/PurchaseAnalytics';
+import UserProfile from '../views/screens/user/user'; 
+import PurchaseHistory from '../views/screens/purchase-history/purchase-history'; // Import if needed
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -18,13 +20,16 @@ const Stack = createStackNavigator();
 function DrawerRoutes() {
   return (
     <Drawer.Navigator
-      initialRouteName="Home"
+      initialRouteName="Catálogos"
       drawerContent={(props) => <CustomDrawer {...props} />}
     >
-      <Drawer.Screen name="Home" component={Home} />
+      <Drawer.Screen name="Catálogos" component={Home} />
       <Drawer.Screen name="Cart" component={CartScreen} />
       <Drawer.Screen name="WineCRUD" component={WineCRUD} />
       <Drawer.Screen name="PurchaseAnalytics" component={PurchaseAnalytics} />
+      <Drawer.Screen name="UserProfile" component={UserProfile} />
+      <Drawer.Screen name="PurchaseHistory" component={PurchaseHistory} />
+      {/* Add more screens as needed */}
     </Drawer.Navigator>
   );
 }
@@ -43,7 +48,7 @@ export default function Routes() {
             <Stack.Screen name='NewAccount' component={NewAccount} />
           </>
         ) : (
-          <Stack.Screen name='Home' component={DrawerRoutes} />
+          <Stack.Screen name='Catalogos' component={DrawerRoutes} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -137,42 +137,18 @@ export default function PurchaseAnalytics() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Análise de Vendas</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Filter size={20} color="#6B7280" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Filtros de Período */}
-      <View style={styles.periodFilter}>
-        {["week", "month", "quarter", "year"].map((period) => (
-          <TouchableOpacity
-            key={period}
-            style={[styles.periodButton, selectedPeriod === period && styles.periodButtonActive]}
-            onPress={() => setSelectedPeriod(period)}
-          >
-            <Text style={[styles.periodButtonText, selectedPeriod === period && styles.periodButtonTextActive]}>
-              {period === "week" ? "Semana" : period === "month" ? "Mês" : period === "quarter" ? "Trimestre" : "Ano"}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Cards de Estatísticas - apenas 2 cards */}
         <View style={styles.statsGrid}>
           <StatCard
             title="Receita Total"
             value={`R$ ${salesData.totalRevenue.toFixed(2).replace(".", ",")}`}
-            subtitle="+12% vs mês anterior"
             icon={DollarSign}
             color="#059669"
           />
           <StatCard
             title="Total de Pedidos"
             value={salesData.totalOrders.toString()}
-            subtitle="+8% vs mês anterior"
             icon={ShoppingCart}
             color="#2563EB"
           />
@@ -183,8 +159,8 @@ export default function PurchaseAnalytics() {
           <Text style={styles.sectionTitle}>Histórico de Compras</Text>
           <View style={styles.tableHeader}>
             <Text style={[styles.tableHeaderText, styles.nameColumn]}>Comprador</Text>
-            <Text style={[styles.tableHeaderText, styles.valueColumn]}>Valor</Text>
-            <Text style={[styles.tableHeaderText, styles.actionColumn]}>Ação</Text>
+            <Text style={[styles.tableHeaderText, styles.valueColumn, styles.centerText]}>Valor</Text>
+            <Text style={[styles.tableHeaderText, styles.actionColumn, styles.centerText]}>Ação</Text>
           </View>
           {purchaseData.map((purchase) => (
             <PurchaseRow key={purchase.id} purchase={purchase} />
@@ -249,8 +225,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   statsGrid: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    width: "100%",
+    flexDirection: "column",
+    alignItems: "center",
     marginTop: 20,
     marginBottom: 24,
   },
@@ -258,7 +235,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
-    width: (width - 60) / 2,
+    width: "100%",
     marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -336,10 +313,15 @@ const styles = StyleSheet.create({
   valueColumn: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
   },
   actionColumn: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+  },
+  centerText: {
+    textAlign: "center",
   },
   buyerName: {
     fontSize: 16,
@@ -355,6 +337,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#059669",
+    textAlign: "center",
   },
   detailsButton: {
     backgroundColor: "#2563EB",

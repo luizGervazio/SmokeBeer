@@ -94,7 +94,6 @@ export default function Home() {
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Catálogo de Vinhos</Text>
         <Text style={styles.headerSubtitle}>Encontre o vinho perfeito</Text>
       </View>
 
