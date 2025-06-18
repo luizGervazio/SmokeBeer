@@ -10,7 +10,7 @@ import Home from '../views/screens/home/index';
 import NewAccount from '../views/screens/NewAccount/index';
 import CartScreen from '../views/screens/Cart/CartScreen';
 import WineCRUD from '../views/screens/wine/index'; 
-import PurchaseAnalytics from '../views/screens/Purchase/PurchaseAnalytics';
+import PurchaseAnalytics from '../views/screens/Purchase/index';
 import UserProfile from '../views/screens/user/index'; 
 import PurchaseHistory from '../views/screens/purchase-history/purchase-history'; // Import if needed
 

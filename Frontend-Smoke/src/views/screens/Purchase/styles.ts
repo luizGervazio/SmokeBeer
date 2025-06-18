@@ -1,0 +1,182 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#111827",
+  },
+  filterButton: {
+    padding: 8,
+  },
+  periodFilter: {
+    flexDirection: "row",
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  periodButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 12,
+    backgroundColor: "#F3F4F6",
+  },
+  periodButtonActive: {
+    backgroundColor: "#2563EB",
+  },
+  periodButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#6B7280",
+  },
+  periodButtonTextActive: {
+    color: "#FFFFFF",
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  statsGrid: {
+    width: "100%",
+    flexDirection: "column",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 24,
+  },
+  statCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 16,
+    width: "100%",
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  statIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  statTitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    flex: 1,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  statSubtitle: {
+    fontSize: 12,
+    color: "#059669",
+  },
+  section: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#111827",
+    marginBottom: 16,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: "#E5E7EB",
+    marginBottom: 8,
+  },
+  tableHeaderText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#374151",
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+    alignItems: "center",
+  },
+  nameColumn: {
+    flex: 2,
+  },
+  valueColumn: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionColumn: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  centerText: {
+    textAlign: "center",
+  },
+  buyerName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  purchaseDate: {
+    fontSize: 12,
+    color: "#6B7280",
+  },
+  purchaseValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#059669",
+    textAlign: "center",
+  },
+  detailsButton: {
+    backgroundColor: "#2563EB",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  detailsButtonText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+});
