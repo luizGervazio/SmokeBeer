@@ -8,11 +8,11 @@ import { useAuth } from '../auth/AuthContext/AuthContext';
 import Login from '../views/screens/login/index';
 import Home from '../views/screens/home/index';
 import NewAccount from '../views/screens/NewAccount/index';
-import CartScreen from '../views/screens/Cart/CartScreen';
+import CartScreen from '../views/screens/Cart/index';
 import WineCRUD from '../views/screens/wine/index'; 
 import PurchaseAnalytics from '../views/screens/Purchase/index';
 import UserProfile from '../views/screens/user/index'; 
-import PurchaseHistory from '../views/screens/purchase-history/purchase-history'; // Import if needed
+import PurchaseHistory from '../views/screens/purchase-history/index'; // Import if needed
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
