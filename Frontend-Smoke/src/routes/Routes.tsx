@@ -9,15 +9,17 @@ import Login from '../views/screens/login/index';
 import Home from '../views/screens/home/index';
 import NewAccount from '../views/screens/NewAccount/index';
 import CartScreen from '../views/screens/Cart/index';
-import WineCRUD from '../views/screens/wine/index'; 
+import WineCRUD from '../views/screens/wine/index';
 import PurchaseAnalytics from '../views/screens/Purchase/index';
-import UserProfile from '../views/screens/user/index'; 
-import PurchaseHistory from '../views/screens/purchase-history/index'; // Import if needed
+import UserProfile from '../views/screens/user/index';
+import PurchaseHistory from '../views/screens/purchase-history/index';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 function DrawerRoutes() {
+  const { roles } = useAuth(); // agora usamos roles (array)
+
   return (
     <Drawer.Navigator
       initialRouteName="Catálogos"
@@ -25,17 +27,22 @@ function DrawerRoutes() {
     >
       <Drawer.Screen name="Catálogos" component={Home} />
       <Drawer.Screen name="Cart" component={CartScreen} />
-      <Drawer.Screen name="WineCRUD" component={WineCRUD} />
-      <Drawer.Screen name="PurchaseAnalytics" component={PurchaseAnalytics} />
       <Drawer.Screen name="UserProfile" component={UserProfile} />
       <Drawer.Screen name="PurchaseHistory" component={PurchaseHistory} />
-      {/* Add more screens as needed */}
+
+      {/* Exibir apenas se for admin */}
+      {roles.includes('admin') && (
+        <>
+          <Drawer.Screen name="WineCRUD" component={WineCRUD} />
+          <Drawer.Screen name="PurchaseAnalytics" component={PurchaseAnalytics} />
+        </>
+      )}
     </Drawer.Navigator>
   );
 }
 
 export default function Routes() {
-  const { isLoggedIn, login } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   return (
     <NavigationContainer>

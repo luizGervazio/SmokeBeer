@@ -72,7 +72,9 @@ export default function WineCRUD() {
         </Text>
         <Text style={styles.wineRegion}>{wine.region}</Text>
         <View style={styles.wineStats}>
-          <Text style={styles.winePrice}>R$ {wine.price}</Text>
+          <Text style={styles.winePrice}>
+            R$ {!isNaN(Number(wine.price)) ? Number(wine.price).toFixed(2) : "0.00"}
+          </Text>
         </View>
       </View>
 

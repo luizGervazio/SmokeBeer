@@ -8,6 +8,9 @@ import {
 } from 'react-native';
 import { styles } from './styles';
 import { useLoginController } from './Login.controller';
+import { Dialog, Portal, Button, Paragraph } from 'react-native-paper';
+
+ // 
 
 export default function Login() {
   const {
@@ -16,7 +19,10 @@ export default function Login() {
     setDocument,
     setPassword,
     handleLogin,
-    handleCreateAccount
+    handleCreateAccount,
+    dialogVisible,
+    dialogMessage,
+    setDialogVisible,
   } = useLoginController();
 
   return (
@@ -56,6 +62,18 @@ export default function Login() {
           </Text>
         </TouchableOpacity>
       </View>
+      <Portal>
+        <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
+          <Dialog.Title>Aviso</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>{dialogMessage}</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDialogVisible(false)}>OK</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </SafeAreaView>
+    
   );
 }

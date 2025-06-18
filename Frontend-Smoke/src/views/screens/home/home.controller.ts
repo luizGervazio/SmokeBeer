@@ -1,6 +1,4 @@
-// Home.controller.ts
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getWines } from '../../../api/services/wine/wine';
 
@@ -16,6 +14,7 @@ export interface Wine {
   description: string;
   price: number;
   image?: string;
+  quantity?: number;
 }
 
 export function useHomeController() {
@@ -23,13 +22,22 @@ export function useHomeController() {
   const [wines, setWines] = useState<Wine[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Dialog state (react-native-paper)
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const showAlert = (message: string) => {
+    setDialogMessage(message);
+    setDialogVisible(true);
+  };
+
   const carregarVinhos = async () => {
     try {
       const dados = await getWines();
       setWines(dados);
     } catch (error) {
       console.error('Erro ao carregar vinhos:', error);
-      Alert.alert('Erro', 'Não foi possível carregar os vinhos.');
+      showAlert('Erro ao carregar vinhos.');
     } finally {
       setLoading(false);
     }
@@ -61,17 +69,10 @@ export function useHomeController() {
 
       await AsyncStorage.setItem('@meu_app_carrinho', JSON.stringify(cartItems));
 
-      Alert.alert(
-        'Adicionado ao Carrinho 🛒',
-        `${wine.name} foi adicionado ao seu carrinho.`,
-        [
-          { text: 'Continuar Comprando', style: 'cancel' },
-          { text: 'Ver Carrinho', onPress: () => console.log('Ir para o carrinho') },
-        ]
-      );
+      showAlert(`${wine.name} foi adicionado ao seu carrinho!`);
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error);
-      Alert.alert('Erro', 'Não foi possível adicionar ao carrinho.');
+      showAlert('Erro ao adicionar ao carrinho.');
     }
   };
 
@@ -81,5 +82,8 @@ export function useHomeController() {
     filteredWines,
     loading,
     handleAddToCart,
+    dialogVisible,
+    dialogMessage,
+    setDialogVisible,
   };
 }

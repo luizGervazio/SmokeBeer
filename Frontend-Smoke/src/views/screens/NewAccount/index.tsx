@@ -7,22 +7,26 @@ import {
 } from "react-native";
 import { styles } from "./styles";
 import { useNewAccountController } from "./NewAcconunt.controller";
+import { Dialog, Portal, Button, Paragraph } from 'react-native-paper';
 
 export default function NewAccount() {
   const {
-    name,
-    document,
-    password,
-    phone,
-    localization,
-    setName,
-    setDocument,
-    setPassword,
-    setPhone,
-    setLocalization,
-    handleRegister,
-    goBack,
-  } = useNewAccountController();
+  name,
+  document,
+  password,
+  phone,
+  localization,
+  setName,
+  setDocument,
+  setPassword,
+  setPhone,
+  setLocalization,
+  handleRegister,
+  goBack,
+  dialogVisible,
+  dialogMessage,
+  handleDialogClose, // ✅ usado para fechar o modal
+} = useNewAccountController();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -73,6 +77,17 @@ export default function NewAccount() {
       <TouchableOpacity onPress={goBack}>
         <Text style={styles.backText}>Voltar para login</Text>
       </TouchableOpacity>
+      <Portal>
+        <Dialog visible={dialogVisible} onDismiss={handleDialogClose}>
+          <Dialog.Title>Aviso</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>{dialogMessage}</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={handleDialogClose}>OK</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </SafeAreaView>
   );
 }

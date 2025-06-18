@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { login as loginService } from '../../../api/services/auth/auth'; // ⬅ renomeado aqui
+import { login as loginService } from '../../../api/services/auth/auth';
 import { useAuth } from '../../../auth/AuthContext/AuthContext';
 
 type AuthStackParamList = {
@@ -17,21 +16,30 @@ export function useLoginController() {
   const [document, setDocument] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation<LoginScreenNavProp>();
-  const { login } = useAuth(); // pega login do contexto corretamente
+  const { login } = useAuth();
+
+  // Estados para o dialog
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const showAlert = (message: string) => {
+    setDialogMessage(message);
+    setDialogVisible(true);
+  };
 
   const handleLogin = async () => {
     if (!document || !password) {
-      Alert.alert('Erro', 'Preencha todos os campos!');
+      showAlert('Preencha todos os campos!');
       return;
     }
 
     try {
-      const token = await loginService(document, password); // login na API
+      const token = await loginService(document, password);
       console.log('Token recebido:', token);
-      await login(); // login do contexto (ativa isLoggedIn)
+      await login();
     } catch (err) {
       console.error('Erro ao logar:', err);
-      Alert.alert('Erro', 'Credenciais inválidas ou servidor offline');
+      showAlert('Credenciais inválidas ou servidor offline.');
     }
   };
 
@@ -46,5 +54,8 @@ export function useLoginController() {
     setPassword,
     handleLogin,
     handleCreateAccount,
+    dialogVisible,
+    dialogMessage,
+    setDialogVisible,
   };
 }
